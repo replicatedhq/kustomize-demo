@@ -22,9 +22,11 @@ export default class BespokeKustomizeOverlay extends Component {
       lastSavedPatch: null,
       patch: "",
       newResourceName: "",
+      savingFinalize: false,
       selectedFile: "",
       selectedFileContent: null,
       overlayToDelete: "",
+      dataLoading: false,
       displayConfirmModal: false,
       displayConfirmModalMessage: "",
       displayConfirmModalDiscardMessage: "",
@@ -192,7 +194,10 @@ export default class BespokeKustomizeOverlay extends Component {
 
   render() {
     const {
-      // files,
+      files,
+      dataLoading,
+      patch,
+      savingFinalize,
       addingNewResource,
       newResourceName,
       modalAction
@@ -206,7 +211,7 @@ export default class BespokeKustomizeOverlay extends Component {
                 <div className="flex1 u-overflow--auto u-background--biscay">
                   <div className="flex1 dirtree-wrapper u-overflow--hidden flex-column">
                     <FileTree
-                      files={this.state.files}
+                      files={files}
                       allowModification={true}
                       isRoot={true}
                       handleFileSelect={(path) => this.setSelectedFile(path)}
@@ -243,14 +248,13 @@ export default class BespokeKustomizeOverlay extends Component {
             <div className="flex-column flex1">
               <div className="u-paddingLeft--20 u-paddingRight--20 u-paddingTop--20">
                 <p className="u-marginBottom--normal u-fontSize--large u-color--tuna u-fontWeight--bold">Base YAML</p>
-                <p className="u-fontSize--small u-lineHeight--more u-fontWeight--medium u-color--doveGray">This file will be applied as a patch to the base manifest. Edit the values that you want patched. The current file you're editing will be automatically saved when you open a new file.</p>
+                <p className="u-fontSize--small u-lineHeight--more u-paddingBottom--20 u-fontWeight--medium u-color--doveGray">This file will be applied as a patch to the base manifest. Edit the values that you want patched. The current file you're editing will be automatically saved when you open a new file.</p>
               </div>
               { this.state.selectedFileContent
                 ? (
                 <AceEditor
                   ref={this.setAceEditor}
                   mode="yaml"
-                  theme="chrome"
                   className="flex1 flex acePatchEditor"
                   value={this.state.selectedFileContent}
                   height="100%"
@@ -272,7 +276,38 @@ export default class BespokeKustomizeOverlay extends Component {
                   </div>
               )
             }
+              <div className="flex-auto flex layout-footer-actions less-padding">
+                <div className="flex flex1">
+                  {/*firstRoute ? null :
+                    <div className="flex-auto u-marginRight--normal">
+                      <button className="btn secondary" onClick={() => goBack()}>Back</button>
+                    </div>
+                  */}
+                  <div className="flex-column flex-verticalCenter">
+                    <p className="u-margin--none u-marginRight--30 u-fontSize--small u-color--dustyGray u-fontWeight--normal">Contributed by <a target="_blank" rel="noopener noreferrer" href="https://replicated.com" className="u-fontWeight--medium u-color--astral u-textDecoration--underlineOnHover">Replicated</a></p>
+                  </div>
+                </div>
+                <div className="flex1 flex alignItems--center justifyContent--flexEnd">
+                  {this.state.selectedFileContent === "" ?
+                    <button type="button" onClick={this.props.skipKustomize} className="btn primary">Continue</button>
+                    :
+                    <div className="flex">
+                      { /*
+                      {applyPatchErr && <span className="flex flex1 u-fontSize--small u-fontWeight--medium u-color--chestnut u-marginRight--20 alignItems--center">{applyPatchErrorMessage}</span>}
+                      {savePatchErr && <span className="flex flex1 u-fontSize--small u-fontWeight--medium u-color--chestnut u-marginRight--20 alignItems--center">{savePatchErrorMessage}</span>}
 
+                      */}
+
+                      <button type="button" disabled={ /*dataLoading.saveKustomizeLoading || patch === "" || savingFinalize */ false} onClick={() => this.handleKustomizeSave(false)} className="btn primary save-btn u-marginRight--normal">{dataLoading.saveKustomizeLoading && !savingFinalize ? "Saving patch" : "Save patch"}</button>
+                      {patch === "" ?
+                        <button type="button" onClick={this.props.skipKustomize} className="btn primary">Continue</button>
+                        :
+                        <button type="button" disabled={/*dataLoading.saveKustomizeLoading || patch === "" || savingFinalize */ false} onClick={() => this.handleKustomizeSave(true)} className="btn secondary finalize-btn">{savingFinalize ? "Finalizing overlay" : "Save & continue"}</button>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
             </div>
           </div>
         </div>
