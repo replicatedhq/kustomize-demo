@@ -1,26 +1,29 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import KustomizeOverlay from "./KustomizeOverlay";
+import "./style/index.scss";
+import "./App.css";
+
+// TODO: CHANGE ME!
+// const API_ENDPOINT = "localhost:4444";
+
+class App extends Component {
+
+  saveKustomizeOverlay = async payload => {
+
+  }
+
+  render() {
+    return (
+        <div id="ship-init-component" className="flex1 flex-column u-minHeight--full u-minWidth--full">
+          <div className="flex-1-auto flex-column u-overflow--auto">
+            <KustomizeOverlay
+              saveKustomizeOverlay={this.saveKustomizeOverlay}
+            />
+          </div>
+        </div>
+    );
+  }
 }
 
 export default App;
