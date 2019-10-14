@@ -11,7 +11,7 @@
     "monaco-editor": "^0.18.1",
     "prop-types": "^15.7.2",
     "react": "^16.10.2",
-    "react-ace": "^7.0.4",
+    "react-ace": "^6.2.0",
     "react-dom": "^16.10.2",
     "react-modal": "^3.10.1",
     "react-monaco-editor": "^0.31.0",

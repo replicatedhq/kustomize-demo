@@ -2,6 +2,7 @@ import React, { Component } from "react";
 // import classNames from "classnames";
 // import keyBy from "lodash/keyBy";
 import AceEditor from "react-ace";
+import { AceEditorHOC } from "./AceEditorHOC";
 import find from "lodash/find";
 import findIndex from "lodash/findIndex";
 
@@ -174,6 +175,13 @@ export default class BespokeKustomizeOverlay extends Component {
     //   });
     // await this.props.getCurrentStep();
   }
+  handleGeneratePatch = async first => {
+    console.log("handleGeneratePatch(): ", first);
+  }
+
+  handleApplyPatch = async (first) => {
+    console.log("handleApplyPatch(): ", first);
+  }
 
   handleAddResourceClick = async () => {
     // Ref input won't focus until state has been set
@@ -202,6 +210,8 @@ export default class BespokeKustomizeOverlay extends Component {
       newResourceName,
       modalAction
     } = this.state;
+
+    const showOverlay = patch.length;
     return (
       <div className="flex flex1">
         <div className="u-minHeight--full u-minWidth--full flex-column flex1 u-position--relative">
@@ -223,7 +233,6 @@ export default class BespokeKustomizeOverlay extends Component {
                       // isBaseTree={tree.name === "/"}
                       restrictToYaml={true}
                     />
-
                     <div className="add-new-resource u-position--relative" ref={this.addResourceWrapper}>
                       <input
                         type="text"
@@ -235,47 +244,80 @@ export default class BespokeKustomizeOverlay extends Component {
                         value={newResourceName}
                         ref={this.addResourceInput}
                       />
-                      <p
+                      {/* <p
                         className={`add-resource-link u-position--absolute u-marginTop--small u-marginLeft--normal u-cursor--pointer u-fontSize--small u-color--silverSand u-fontWeight--bold ${addingNewResource ? "u-visibility--hidden" : ""}`}
                         onClick={this.handleAddResourceClick}
                       >+ Add Resource
-                      </p>
+                      </p> */}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
             <div className="flex-column flex1">
-              <div className="u-paddingLeft--20 u-paddingRight--20 u-paddingTop--20">
-                <p className="u-marginBottom--normal u-fontSize--large u-color--tuna u-fontWeight--bold">Base YAML</p>
-                <p className="u-fontSize--small u-lineHeight--more u-paddingBottom--20 u-fontWeight--medium u-color--doveGray">This file will be applied as a patch to the base manifest. Edit the values that you want patched. The current file you're editing will be automatically saved when you open a new file.</p>
-              </div>
-              { this.state.selectedFileContent
-                ? (
-                <AceEditor
-                  ref={this.setAceEditor}
-                  mode="yaml"
-                  className="flex1 flex acePatchEditor"
-                  value={this.state.selectedFileContent}
-                  height="100%"
-                  width="100%"
-                  editorProps={{
-                    $blockScrolling: Infinity,
-                    useSoftTabs: true,
-                    tabSize: 2,
-                  }}
-                  debounceChangePeriod={1000}
-                  setOptions={{
-                    scrollPastEnd: false
-                  }}
-                // onChange={(patch) => this.updateModifiedPatch(patch, fileToView.isResource)}
-                />
-              ) : (
-                <div className="flex flex1 zero-state justifyContent--center alignItems--center">
-                    <p>No file selected. Drag and drop a file or folder onto the file tree to get started</p>
+
+              <div className="flex flex1">
+                <div className="flex-column flex1">
+                  <div className="u-paddingLeft--20 u-paddingRight--20 u-paddingTop--20">
+                    <p className="u-marginBottom--normal u-fontSize--large u-color--tuna u-fontWeight--bold">Base YAML</p>
+                    <p className="u-fontSize--small u-lineHeight--more u-paddingBottom--20 u-fontWeight--medium u-color--doveGray">This file will be applied as a patch to the base manifest. Edit the values that you want patched. The current file you're editing will be automatically saved when you open a new file.</p>
                   </div>
-              )
-            }
+                  {this.state.selectedFileContent
+                    ? (
+                      <div className="flex1 file-contents-wrapper AceEditor--wrapper">
+                        {!showOverlay &&
+                          <div data-tip="create-overlay-tooltip" data-for="create-overlay-tooltip" className="overlay-toggle u-cursor--pointer" onClick={this.createOverlay}>
+                            <span className="icon clickable u-overlayCreateIcon"></span>
+                          </div>
+                        }
+                        { /* <ReactTooltip id="create-overlay-tooltip" effect="solid" className="replicated-tooltip">Create patch</ReactTooltip> */}
+                        <AceEditorHOC
+                          handleGeneratePatch={this.handleGeneratePatch}
+                          handleApplyPatch={this.handleApplyPatch}
+                          fileToView={{
+                            baseContent: this.state.selectedFileContent,
+                            isResource: false,
+                            isSupported: true,
+                            key: this.state.selectedFile
+                          }}
+                          diffOpen={this.state.viewDiff}
+                          overlayOpen={showOverlay}
+                        />
+                      </div>
+                    ) : (
+
+                      <div className="empty-file-wrapper flex flex1 justifyContent--center alignItems--center">
+
+                        <p>No file selected. Drag and drop a file or folder onto the file tree to get started</p>
+                      </div>
+                    )}
+                </div>
+                <div className="flex-column flex1">
+                  <div className="u-paddingLeft--20 u-paddingRight--20 u-paddingTop--20">
+                    <p className="u-marginBottom--normal u-fontSize--large u-color--tuna u-fontWeight--bold">Patch</p>
+                    <p className="u-fontSize--small u-lineHeight--more u-paddingBottom--20 u-fontWeight--medium u-color--doveGray">This file will be applied as a patch to the base manifest. Edit the values that you want patched.</p>
+                  </div>
+                  <AceEditor
+                    ref={this.setAceEditor}
+                    mode="yaml"
+                    className="flex1 flex acePatchEditor"
+                    value={""}
+                    height="100%"
+                    width="100%"
+                    editorProps={{
+                      $blockScrolling: Infinity,
+                      useSoftTabs: true,
+                      tabSize: 2,
+                    }}
+                    debounceChangePeriod={1000}
+                    setOptions={{
+                      scrollPastEnd: false
+                    }}
+                  // onChange={(patch) => this.updateModifiedPatch(patch, fileToView.isResource)}
+                  />
+                </div>
+
+              </div>
               <div className="flex-auto flex layout-footer-actions less-padding">
                 <div className="flex flex1">
                   {/*firstRoute ? null :

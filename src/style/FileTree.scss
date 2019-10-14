@@ -282,7 +282,9 @@
 }
 
 .FileTree-wrapper .BottomOptions-Wrapper {
-  display: flex;
+  // Hide this section
+  display: none;
+  // display: flex;
   flex-direction: column;
   position: absolute;
   width: 100%;
@@ -360,3 +362,4 @@
     background: #fffbdd;
     position: absolute;
 }
+

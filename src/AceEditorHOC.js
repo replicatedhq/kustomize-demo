@@ -19,7 +19,8 @@ export class AceEditorHOC extends React.Component {
 
   componentDidUpdate(prevProps) {
     const { fileToView } = this.props;
-    if (fileToView !== prevProps.fileToView) {
+
+    if (fileToView.key !== prevProps.fileToView.key) {
       if (fileToView.baseContent && fileToView.isSupported) {
         const markers = this.createMarkers(fileToView);
         this.setState({ markers });
@@ -36,9 +37,18 @@ export class AceEditorHOC extends React.Component {
   }
 
   componentDidMount() {
+    const { fileToView } = this.props;
+
     addListener(this.aceEditorBase.editor, "click", this.addToOverlay)
     addListener(this.aceEditorBase.editor.renderer.scroller, "mousemove", this.setActiveMarker);
     addListener(this.aceEditorBase.editor.renderer.scroller, "mouseout", this.setActiveMarker);
+
+    if (fileToView.key) {
+      if (fileToView.baseContent && fileToView.isSupported) {
+        const markers = this.createMarkers(fileToView);
+        this.setState({ markers });
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -47,9 +57,11 @@ export class AceEditorHOC extends React.Component {
     removeListener(this.aceEditorBase.editor.renderer.scroller, "mouseout", this.setActiveMarker)
   }
 
-  findMarkerAtRow = (row, markers) => (
-    find(markers, ({ startRow, endRow }) => ( row >= startRow && row <= endRow ))
-  )
+  findMarkerAtRow = (row, markers) => {
+    return (
+      find(markers, ({ startRow, endRow }) => (row >= startRow && row <= endRow))
+    );
+  }
 
   addToOverlay = async () => {
     const { handleGeneratePatch, handleApplyPatch } = this.props;
@@ -59,6 +71,7 @@ export class AceEditorHOC extends React.Component {
       const matchingMarker = activeMarker[0];
       const { path } = matchingMarker;
       await handleApplyPatch().catch();
+      console.log("applying patch with path: ", path);
       handleGeneratePatch(path);
     }
   }
@@ -157,7 +170,7 @@ export class AceEditorHOC extends React.Component {
         theme="chrome"
         className="flex1 flex"
         readOnly={true}
-        value={fileToView && fileToView.baseContent || ""}
+        value={(fileToView && fileToView.baseContent) || ""}
         height="100%"
         width="100%"
         editorProps={{
