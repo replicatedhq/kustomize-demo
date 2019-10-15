@@ -1,5 +1,5 @@
 import * as React from "react";
-
+import classNames from "classnames";
 import find from "lodash/find";
 
 import Tooltip from "./Tooltip";
@@ -508,36 +508,28 @@ export default class FileTree extends React.Component {
           );
         })
         }
-        {isRoot && allowModification &&
-          <div className="BottomOptions-Wrapper">
-            <div className="BottomOptions-Separator" />
-            <div className="BottomOptions-Row">
-              <span
-                className="BottomOptions-Option icon clickable u-fileIcon"
-                onMouseEnter={this.displayTooltip("newFile", true)}
-                onMouseLeave={this.displayTooltip("newFile", false)}
-                onClick={() => this.addNewFile(false)}
-              >
-                <Tooltip
-                  visible={this.state.newFileHovered}
-                  text="New File"
-                  position="top-left"
-                />
-              </span>
-              <span
-                className="BottomOptions-Option icon clickable u-folderIcon"
-                onClick={() => this.addNewFile(true)}
-                onMouseEnter={this.displayTooltip("newFolder", true)}
-                onMouseLeave={this.displayTooltip("newFolder", false)}
-              >
-                <Tooltip
-                  visible={this.state.newFolderHovered}
-                  text="New Folder"
-                  position="top-left"
-                />
-              </span>
+        {isRoot && this.props.savedOverlays && this.props.savedOverlays.length > 0 &&
+          (
+            <div className="overlay-list-wrapper">
+              <div className="overlay-list-title">Overlays</div>
+              {this.props.savedOverlays.map(overlay => {
+                return (
+                  <div
+                    key={overlay.path}
+                    className={classNames("overlay-item u-color", {
+                      selected: overlay.path === this.props.selectedFile
+                    })}
+                    onClick={() => {
+                      this.props.handleFileSelect(overlay.path);
+                    }}
+                  >
+                    {overlay.name}
+                  </div>
+                )
+              })}
             </div>
-          </div>
+
+          )
         }
         {isRoot && allowModification && files.length < 1 &&
           <div className="AddFilesWatermark-Wrapper">

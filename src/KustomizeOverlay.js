@@ -20,8 +20,8 @@ export default class BespokeKustomizeOverlay extends Component {
     super(props);
 
     this.state = {
-      files: [
-      ],
+      files: [],
+      savedOverlays: [],
       addingNewResource: false,
       lastSavedPatch: null,
       patch: "",
@@ -67,10 +67,20 @@ export default class BespokeKustomizeOverlay extends Component {
 
   }
 
+  getOverlay = path => {
+    const { savedOverlays } = this.state;
+    const overlay = savedOverlays.find(o => {
+      return o.path === path;
+    });
+
+    return overlay;
+  }
+
   setSelectedFile = async (path) => {
     const { lastSavedPatch, patch, selectedFile } = this.state;
     /* eslint-disable-next-line no-restricted-globals */
     let canChangeFile = !lastSavedPatch || patch === lastSavedPatch || confirm("You have unsaved changes in the patch. If you proceed, you will lose any of the changes you've made.");
+    const overlay = this.getOverlay(path);
 
     if (selectedFile !== path) {
       // A new file has been selected. Reset all the things
@@ -83,6 +93,14 @@ export default class BespokeKustomizeOverlay extends Component {
         this.setState({
           selectedFileContent: file.content
         });
+        console.log(overlay);
+        if (overlay) {
+          this.setState({
+            patch: overlay.patch
+          }, () => {
+            this.applyPatchAndOpen();
+          });
+        }
       });
     }
   }
@@ -243,8 +261,6 @@ export default class BespokeKustomizeOverlay extends Component {
         Resource string`json:"resource"`
         Patch    string`json:"patch"`
     } */
-    console.log("APPLYING PATCH");
-    // debugger;
     const { API_ENDPOINT } = this.props;
 
     try {
@@ -310,16 +326,35 @@ export default class BespokeKustomizeOverlay extends Component {
     }
   }
 
+  savePatch = () => {
+    const {
+      selectedFile,
+      savedOverlays,
+      patch
+    } = this.state;
+    const file = this.getFile(selectedFile);
+    const newOverlays = [
+      ...savedOverlays,
+      {
+        path: selectedFile,
+        name: file.name,
+        content: file.content,
+        patch,
+      }
+    ];
+
+    this.setState({
+      savedOverlays: newOverlays
+    });
+  }
+
   render() {
     const {
       files,
       finalized,
       patch,
-      savingFinalize,
       selectedFile,
       showDiff,
-      addingNewResource,
-      newResourceName,
       modalAction
     } = this.state;
 
@@ -336,24 +371,13 @@ export default class BespokeKustomizeOverlay extends Component {
                       files={files}
                       allowModification={true}
                       isRoot={true}
+                      savedOverlays={this.state.savedOverlays}
                       handleFileSelect={(path) => this.setSelectedFile(path)}
                       handleDeleteOverlay={this.toggleModal}
                       handleClickExcludedBase={this.toggleModalForExcludedBase}
                       selectedFile={this.state.selectedFile}
                       restrictToYaml={true}
                     />
-                    <div className="add-new-resource u-position--relative" ref={this.addResourceWrapper}>
-                      <input
-                        type="text"
-                        className={`Input add-resource-name-input u-position--absolute ${!addingNewResource ? "u-visibility--hidden" : ""}`}
-                        name="new-resource"
-                        placeholder="filename.yaml"
-                        onChange={(e) => { this.setState({ newResourceName: e.target.value }) }}
-                        onKeyPress={(e) => { this.handleCreateNewResource(e) }}
-                        value={newResourceName}
-                        ref={this.addResourceInput}
-                      />
-                    </div>
                   </div>
                 </div>
               </div>
@@ -461,24 +485,14 @@ export default class BespokeKustomizeOverlay extends Component {
                   </div>
                 </div>
                 <div className="flex1 flex alignItems--center justifyContent--flexEnd">
-                  {this.state.selectedFileContent === "" ?
-                    <button type="button" onClick={this.props.skipKustomize} className="btn primary">Continue</button>
-                    :
+                  {this.state.selectedFileContent && (
                     <div className="flex">
-                      { /*
-                      {applyPatchErr && <span className="flex flex1 u-fontSize--small u-fontWeight--medium u-color--chestnut u-marginRight--20 alignItems--center">{applyPatchErrorMessage}</span>}
-                      {savePatchErr && <span className="flex flex1 u-fontSize--small u-fontWeight--medium u-color--chestnut u-marginRight--20 alignItems--center">{savePatchErrorMessage}</span>}
-
-                      */}
                       <button type="button" onClick={this.applyPatchAndOpen} className="btn primary u-marginRight--10">Apply Patch</button>
-
-                      {patch === "" ?
-                        <button type="button" onClick={this.props.skipKustomize} className="btn primary">Continue</button>
-                        :
-                        <button type="button" disabled={/*dataLoading.saveKustomizeLoading || patch === "" || savingFinalize */ false} onClick={() => this.handleKustomizeSave(true)} className="btn secondary finalize-btn">{savingFinalize ? "Finalizing overlay" : "Save & continue"}</button>
-                      }
+                      {patch !== "" && (
+                        <button type="button" onClick={this.savePatch} className="btn primary">Save Patch</button>
+                      )}
                     </div>
-                  }
+                  )}
                 </div>
               </div>
             </div>

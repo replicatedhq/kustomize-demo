@@ -210,3 +210,32 @@
     position: absolute;
 }
 
+// .overlay-list-wrapper {
+
+// }
+
+.overlay-list-title {
+  color: white;
+  font-weight: 700;
+  margin-top: 20px;
+  margin-left: 10px;
+}
+
+.overlay-item {
+  color: white;
+  position: relative;
+  font-weight: 400;
+  margin-top: 10px;
+  margin-left: 20px;
+  font-size: 15px;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &.selected {
+    font-weight: 700;
+  }
+
+
+}
