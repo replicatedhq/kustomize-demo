@@ -1,13 +1,15 @@
 import React, { Component } from "react";
-// import classNames from "classnames";
-// import keyBy from "lodash/keyBy";
 import AceEditor from "react-ace";
+
+import DiffEditor from "./DiffEditor";
 import { AceEditorHOC } from "./AceEditorHOC";
 import find from "lodash/find";
 import findIndex from "lodash/findIndex";
-
 import FileTree from "./FileTree";
 import KustomizeModal from "./KustomizeModal";
+
+import "brace/mode/yaml";
+import "brace/theme/chrome";
 
 // const PATCH_OVERLAY = "PATCH";
 const BASE_OVERLAY = "BASE";
@@ -18,14 +20,17 @@ export default class BespokeKustomizeOverlay extends Component {
     super(props);
 
     this.state = {
-      files: [],
+      files: [
+      ],
       addingNewResource: false,
       lastSavedPatch: null,
       patch: "",
+      finalized: "",
       newResourceName: "",
       savingFinalize: false,
       selectedFile: "",
       selectedFileContent: null,
+      showDiff: false,
       overlayToDelete: "",
       dataLoading: false,
       displayConfirmModal: false,
@@ -57,12 +62,13 @@ export default class BespokeKustomizeOverlay extends Component {
     let canChangeFile = !lastSavedPatch || patch === lastSavedPatch || confirm("You have unsaved changes in the patch. If you proceed, you will lose any of the changes you've made.");
 
     if (canChangeFile) {
-      this.setState({ selectedFile: path, lastSavedPatch: null });
-      const file = this.getFile(path);
-      this.setState({
-        selectedFileContent: file.content
+      this.setState({ selectedFile: path, lastSavedPatch: null }, () => {
+        const file = this.getFile(path);
+        if (!file) { return; }
+        this.setState({
+          selectedFileContent: file.content
+        });
       });
-
     }
   }
 
@@ -175,6 +181,7 @@ export default class BespokeKustomizeOverlay extends Component {
     //   });
     // await this.props.getCurrentStep();
   }
+
   handleGeneratePatch = async path => {
     /*
     type Request struct {
@@ -201,7 +208,6 @@ export default class BespokeKustomizeOverlay extends Component {
       });
 
       const json = await resp.json();
-
       this.setState({
         patch: json.patch
       });
@@ -210,29 +216,47 @@ export default class BespokeKustomizeOverlay extends Component {
     }
   }
 
-  handleApplyPatch = async (first) => {
+  handlePatchChange = value => {
+    this.setState({
+      patch: value
+    });
+  }
+
+  handleApplyPatch = async () => {
     /*
       type Request struct {
         Resource string`json:"resource"`
         Patch    string`json:"patch"`
     } */
+    console.log("APPLYING PATCH");
+    // debugger;
     const { API_ENDPOINT } = this.props;
-    // try {
 
-    //   const response = await fetch(`${API_ENDPOINT}/kustomize/apply`, {
-    //     method: "POST",
-    //     headers: {
-    //       "Accept": "application/json",
-    //       "Content-Type": "application/json"
-    //     },
-    //     body: JSON.stringify(payload)
-    //   });
-    //   const { modified } = await response.json();
-    //   dispatch(receiveModified(modified, payload.patch));
-    // } catch (error) {
-    //   throw new Error("We weren't able to apply your patch, please verify your patch and try again.");
-    // }
-    // console.log("handleApplyPatch(): ", first);
+    try {
+      const response = await fetch(`${API_ENDPOINT}/kustomize/apply`, {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          resource: this.state.selectedFileContent,
+          patch: this.state.patch
+        })
+      });
+      const json = await response.json();
+
+      this.setState({
+        finalized: json.modified
+      });
+
+    } catch (error) {
+      throw new Error("We weren't able to apply your patch, please verify your patch and try again.");
+    }
+  }
+
+  handleKustomizeSave = () => {
+
   }
 
   handleAddResourceClick = async () => {
@@ -243,6 +267,21 @@ export default class BespokeKustomizeOverlay extends Component {
 
     window.addEventListener("click", this.handleClickOutsideResourceInput);
   }
+
+  toggleDiffViewer = () => {
+    this.setState({
+      showDiff: !this.state.showDiff
+    });
+  }
+
+  applyPatchAndOpen = async () => {
+    await this.handleApplyPatch();
+
+    this.setState({
+      showDiff: true
+    });
+  }
+
 
   handleClickOutsideResourceInput = (e) => {
     const { addingNewResource } = this.state;
@@ -256,8 +295,11 @@ export default class BespokeKustomizeOverlay extends Component {
     const {
       files,
       dataLoading,
+      finalized,
       patch,
       savingFinalize,
+      selectedFile,
+      showDiff,
       addingNewResource,
       newResourceName,
       modalAction
@@ -339,7 +381,6 @@ export default class BespokeKustomizeOverlay extends Component {
                     ) : (
 
                       <div className="empty-file-wrapper flex flex1 justifyContent--center alignItems--center">
-
                         <p>No file selected. Drag and drop a file or folder onto the file tree to get started</p>
                       </div>
                     )}
@@ -349,27 +390,55 @@ export default class BespokeKustomizeOverlay extends Component {
                     <p className="u-marginBottom--normal u-fontSize--large u-color--tuna u-fontWeight--bold">Patch</p>
                     <p className="u-fontSize--small u-lineHeight--more u-paddingBottom--20 u-fontWeight--medium u-color--doveGray">This file will be applied as a patch to the base manifest. Edit the values that you want patched.</p>
                   </div>
-                  <AceEditor
-                    ref={this.setAceEditor}
-                    mode="yaml"
-                    className="flex1 flex acePatchEditor"
-                    value={""}
-                    height="100%"
-                    width="100%"
-                    editorProps={{
-                      $blockScrolling: Infinity,
-                      useSoftTabs: true,
-                      tabSize: 2,
-                    }}
-                    debounceChangePeriod={1000}
-                    setOptions={{
-                      scrollPastEnd: false
-                    }}
-                  // onChange={(patch) => this.updateModifiedPatch(patch, fileToView.isResource)}
+                  { patch
+                      ? (
+                          <div className="flex1 AceEditor--wrapper u-position--relative">
+                            <AceEditor
+                              ref={this.setAceEditor}
+                              mode="yaml"
+                              theme="chrome"
+                              className="flex1 flex"
+                              value={patch || ""}
+                              height="100%"
+                              width="100%"
+                              editorProps={{
+                                $blockScrolling: Infinity,
+                                useSoftTabs: true,
+                                tabSize: 2,
+                              }}
+                              onChange={this.handlePatchChange}
+
+                              setOptions={{
+                                scrollPastEnd: false
+                              }}
+                            />
+                          </div>
+                        )
+                      : (
+                        <div className="flex flex1 empty-file-wrapper alignItems--center justifyContent--center">
+                          <p>Click on a line in the base YAML to generate a patch</p>
+                        </div>
+                      )
+                  }
+                </div>
+              </div>
+
+              { patch && selectedFile && finalized && (
+                <div className="flex diff-viewer-wrapper alignItems--center justifyContent--center">
+                  <p className="diff-toggle" onClick={this.toggleDiffViewer}>{showDiff ? "Hide" : "Show"} Diff</p>
+                </div>
+              )}
+              { patch && selectedFile && finalized && showDiff && (
+                <div className="flex diff-viewer-wrapper flex-column flex1">
+                  <DiffEditor
+                    diffTitle="Diff YAML"
+                    diffSubCopy="Here you can see the diff of the base YAML, and the finalized version with the overlay applied."
+                    original={this.state.selectedFileContent}
+                    updated={this.state.finalized}
                   />
                 </div>
+              )}
 
-              </div>
               <div className="flex-auto flex layout-footer-actions less-padding">
                 <div className="flex flex1">
                   {/*firstRoute ? null :
@@ -391,8 +460,8 @@ export default class BespokeKustomizeOverlay extends Component {
                       {savePatchErr && <span className="flex flex1 u-fontSize--small u-fontWeight--medium u-color--chestnut u-marginRight--20 alignItems--center">{savePatchErrorMessage}</span>}
 
                       */}
+                      <button type="button" onClick={this.applyPatchAndOpen} className="btn primary u-marginRight--10">Apply Patch</button>
 
-                      <button type="button" disabled={ /*dataLoading.saveKustomizeLoading || patch === "" || savingFinalize */ false} onClick={() => this.handleKustomizeSave(false)} className="btn primary save-btn u-marginRight--normal">{dataLoading.saveKustomizeLoading && !savingFinalize ? "Saving patch" : "Save patch"}</button>
                       {patch === "" ?
                         <button type="button" onClick={this.props.skipKustomize} className="btn primary">Continue</button>
                         :

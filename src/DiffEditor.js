@@ -55,7 +55,7 @@ export default class DiffEditor extends React.Component {
             original={original}
             value={updated}
             options={{
-              renderSideBySide: false,
+              renderSideBySide: this.state.splitDiff,
               enableSplitViewResizing: true,
               scrollBeyondLastLine: false,
             }}

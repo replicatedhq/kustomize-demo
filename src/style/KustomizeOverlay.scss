@@ -55,6 +55,7 @@
   margin: 20px;
   padding: 10px;
   border-radius: 4px;
+  text-align: center;
   border: 1px dashed #DFDFDF;
   background-color: #f8f8f8;
 }
@@ -116,7 +117,7 @@
 }
 
 .diff-viewer-wrapper {
-  padding: 20px;
+  margin: 20px 0;
   background-color: #f8f8f8;
   position: relative;
 
@@ -218,3 +219,4 @@
     }
   }
 }
+

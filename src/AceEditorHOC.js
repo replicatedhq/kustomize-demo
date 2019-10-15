@@ -70,9 +70,12 @@ export class AceEditorHOC extends React.Component {
     if (activeMarker.length > 0) {
       const matchingMarker = activeMarker[0];
       const { path } = matchingMarker;
-      await handleApplyPatch().catch();
-      console.log("applying patch with path: ", path);
-      handleGeneratePatch(path);
+
+      await handleGeneratePatch(path);
+      await handleApplyPatch();
+
+
+      // await handleApplyPatch().catch();
     }
   }
 
