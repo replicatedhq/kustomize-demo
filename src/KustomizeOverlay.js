@@ -299,6 +299,42 @@ export default class BespokeKustomizeOverlay extends Component {
       window.removeEventListener("click", this.handleClickOutsideResourceInput);
     }
   }
+  generateKustomization = async () => {
+    const { API_ENDPOINT } = this.props;
+    const { savedOverlays } = this.state;
+
+    const resp = await fetch(`${API_ENDPOINT}/kustomize/kustomization`, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        "resources": savedOverlays.map(o => o.path),
+        "patches": savedOverlays.map(o => o.path)
+      })
+    });
+
+    const json = await resp.json();
+    debugger;
+    let kustomizationYaml = savedOverlays.find(o => o.path === "kustomization.yaml");
+    if (!kustomizationYaml) {
+      kustomizationYaml = {
+        name: "kustomization.yaml",
+        path: "kustomization.yaml",
+        content: "INSERT YAML HERE"
+      };
+    }
+
+    const newOverlays = [
+      ...savedOverlays,
+      kustomizationYaml
+    ];
+
+    this.setState({
+      savedOverlays: newOverlays
+    });
+  }
 
   savePatch = () => {
     const {
@@ -316,10 +352,11 @@ export default class BespokeKustomizeOverlay extends Component {
         patch,
       }
     ];
-
+    console.log("saving Patch and setting state");
     this.setState({
       savedOverlays: newOverlays
-    });
+    }, this.generateKustomization);
+
   }
 
   render() {
