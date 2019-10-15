@@ -511,7 +511,7 @@ export default class FileTree extends React.Component {
         {isRoot && this.props.savedOverlays && this.props.savedOverlays.length > 0 &&
           (
             <div className="overlay-list-wrapper">
-              <div className="overlay-list-title">Overlays</div>
+              <div className="overlay-list-title">Overlay</div>
               {this.props.savedOverlays.map(overlay => {
                 return (
                   <div
