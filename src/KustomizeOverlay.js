@@ -62,7 +62,8 @@ export default class BespokeKustomizeOverlay extends Component {
       finalized: "",
       showDiff: false,
       selectedFile: "",
-      selectedFileContent: ""
+      selectedFileContent: "",
+      strippedOriginal: ""
     });
 
   }
@@ -93,7 +94,6 @@ export default class BespokeKustomizeOverlay extends Component {
         this.setState({
           selectedFileContent: file.content
         });
-        console.log(overlay);
         if (overlay) {
           this.setState({
             patch: overlay.patch
@@ -175,45 +175,6 @@ export default class BespokeKustomizeOverlay extends Component {
     }
   }
 
-  handleCreateNewResource = (e) => {
-    const KEY_ENTER = 13;
-    if (e.charCode === KEY_ENTER) {
-      this.handleCreateResource()
-    }
-  }
-
-  /** This method may not be used anymore */
-  handleCreateResource = async () => {
-    // const { newResourceName } = this.state;
-    // const contents = "\n"; // Cannot be empty
-    // this.setState({ patch: contents });
-
-    // const payload = {
-    //   path: `/${newResourceName}`,
-    //   contents,
-    //   isResource: true
-    // };
-
-    // await this.props.saveKustomizeOverlay(payload)
-    //   .then(() => {
-    //     this.setSelectedFile(`/${newResourceName}`);
-    //     this.setState({ addingNewResource: false, newResourceName: "" })
-    //   })
-    //   .catch((err) => {
-    //     this.setState({
-    //       savePatchErr: true,
-    //       savePatchErrorMessage: err.message
-    //     });
-
-    //     setTimeout(() => {
-    //       this.setState({
-    //         savePatchErr: false,
-    //         savePatchErrorMessage: ""
-    //       });
-    //     }, 3000);
-    //   });
-    // await this.props.getCurrentStep();
-  }
 
   handleGeneratePatch = async path => {
     /*
@@ -275,9 +236,22 @@ export default class BespokeKustomizeOverlay extends Component {
           patch: this.state.patch
         })
       });
-      const json = await response.json();
+      const strippedOriginalResponse = await fetch(`${API_ENDPOINT}/kustomize/apply`, {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          resource: this.state.selectedFileContent,
+          patch: ""
+        })
+      });
 
+      const json = await response.json();
+      const strippedJson = await strippedOriginalResponse.json();
       this.setState({
+        strippedOriginal: strippedJson.modified,
         finalized: json.modified
       });
 
@@ -467,7 +441,7 @@ export default class BespokeKustomizeOverlay extends Component {
                   <DiffEditor
                     diffTitle="Diff YAML"
                     diffSubCopy="Here you can see the diff of the base YAML, and the finalized version with the overlay applied."
-                    original={this.state.selectedFileContent}
+                    original={this.state.strippedOriginal}
                     updated={this.state.finalized}
                   />
                 </div>

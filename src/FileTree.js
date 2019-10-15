@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "classnames";
 import find from "lodash/find";
 
-import Tooltip from "./Tooltip";
+// import Tooltip from "./Tooltip";
 
 function rootPath(path) {
   if (path[0] !== "/") {

@@ -72,6 +72,7 @@ input:-webkit-autofill {
   padding: 12px 30px 11px;
   background-color: #ffffff;
   z-index: 110;
+  min-height: 32px;
 
   &.less-padding {
     padding: 12px 20px 11px;
