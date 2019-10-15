@@ -286,6 +286,8 @@ export default class BespokeKustomizeOverlay extends Component {
   toggleDiffViewer = () => {
     this.setState({
       showDiff: !this.state.showDiff
+    }, () => {
+      this.patchAceEditor.editor.resize();
     });
   }
 
@@ -294,6 +296,8 @@ export default class BespokeKustomizeOverlay extends Component {
 
     this.setState({
       showDiff: true
+    }, () => {
+      this.patchAceEditor.editor.resize();
     });
   }
 
@@ -400,7 +404,7 @@ export default class BespokeKustomizeOverlay extends Component {
                       ? (
                           <div className="flex1 AceEditor--wrapper u-position--relative">
                             <AceEditor
-                              ref={this.setAceEditor}
+                              ref={ref => { this.patchAceEditor = ref ;} }
                               mode="yaml"
                               theme="chrome"
                               className="flex1 flex"
