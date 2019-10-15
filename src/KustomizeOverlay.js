@@ -56,11 +56,26 @@ export default class BespokeKustomizeOverlay extends Component {
     }
   }
 
+  resetState = async () => {
+    this.setState({
+      patch: "",
+      finalized: "",
+      showDiff: false,
+      selectedFile: "",
+      selectedFileContent: ""
+    });
+
+  }
+
   setSelectedFile = async (path) => {
-    const { lastSavedPatch, patch } = this.state;
+    const { lastSavedPatch, patch, selectedFile } = this.state;
     /* eslint-disable-next-line no-restricted-globals */
     let canChangeFile = !lastSavedPatch || patch === lastSavedPatch || confirm("You have unsaved changes in the patch. If you proceed, you will lose any of the changes you've made.");
 
+    if (selectedFile !== path) {
+      // A new file has been selected. Reset all the things
+      await this.resetState();
+    }
     if (canChangeFile) {
       this.setState({ selectedFile: path, lastSavedPatch: null }, () => {
         const file = this.getFile(path);
@@ -149,12 +164,12 @@ export default class BespokeKustomizeOverlay extends Component {
     }
   }
 
+  /** This method may not be used anymore */
   handleCreateResource = async () => {
     // const { newResourceName } = this.state;
     // const contents = "\n"; // Cannot be empty
     // this.setState({ patch: contents });
 
-    // TODO:  Redux stuff here. Get rid and move to calling API
     // const payload = {
     //   path: `/${newResourceName}`,
     //   contents,
@@ -294,7 +309,6 @@ export default class BespokeKustomizeOverlay extends Component {
   render() {
     const {
       files,
-      dataLoading,
       finalized,
       patch,
       savingFinalize,
@@ -322,9 +336,6 @@ export default class BespokeKustomizeOverlay extends Component {
                       handleDeleteOverlay={this.toggleModal}
                       handleClickExcludedBase={this.toggleModalForExcludedBase}
                       selectedFile={this.state.selectedFile}
-                      // isOverlayTree={tree.name === "overlays"}
-                      // isResourceTree={tree.name === "resources"}
-                      // isBaseTree={tree.name === "/"}
                       restrictToYaml={true}
                     />
                     <div className="add-new-resource u-position--relative" ref={this.addResourceWrapper}>
@@ -338,11 +349,6 @@ export default class BespokeKustomizeOverlay extends Component {
                         value={newResourceName}
                         ref={this.addResourceInput}
                       />
-                      {/* <p
-                        className={`add-resource-link u-position--absolute u-marginTop--small u-marginLeft--normal u-cursor--pointer u-fontSize--small u-color--silverSand u-fontWeight--bold ${addingNewResource ? "u-visibility--hidden" : ""}`}
-                        onClick={this.handleAddResourceClick}
-                      >+ Add Resource
-                      </p> */}
                     </div>
                   </div>
                 </div>
@@ -374,7 +380,7 @@ export default class BespokeKustomizeOverlay extends Component {
                             isSupported: true,
                             key: this.state.selectedFile
                           }}
-                          diffOpen={this.state.viewDiff}
+                          diffOpen={this.state.showDiff}
                           overlayOpen={showOverlay}
                         />
                       </div>

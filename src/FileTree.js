@@ -539,7 +539,7 @@ export default class FileTree extends React.Component {
             </div>
           </div>
         }
-        {isRoot && allowModification && files.length <= 6 &&
+        {isRoot && allowModification && files.length < 1 &&
           <div className="AddFilesWatermark-Wrapper">
             <span className="AddFilesWatermark-Text">Drag here<br />to add files</span>
           </div>
