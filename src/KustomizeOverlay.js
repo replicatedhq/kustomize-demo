@@ -402,7 +402,7 @@ export default class BespokeKustomizeOverlay extends Component {
                   </div>
                   { patch
                       ? (
-                          <div className="flex1 AceEditor--wrapper u-position--relative">
+                          <div className="flex1 AceEditor--wrapper file-contents-wrapper u-position--relative">
                             <AceEditor
                               ref={ref => { this.patchAceEditor = ref ;} }
                               mode="yaml"
