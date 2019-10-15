@@ -175,12 +175,64 @@ export default class BespokeKustomizeOverlay extends Component {
     //   });
     // await this.props.getCurrentStep();
   }
-  handleGeneratePatch = async first => {
-    console.log("handleGeneratePatch(): ", first);
+  handleGeneratePatch = async path => {
+    /*
+    type Request struct {
+		  Original string        `json:"original"`
+		  Patch    string        `json:"existing_patch"`
+		  Path     []interface{} `json:"path"`
+	  }
+    */
+    const { API_ENDPOINT } = this.props;
+    try {
+      const resp = await fetch(`${API_ENDPOINT}/kustomize/patch`, {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        },
+        body: JSON.stringify({
+          path,
+          original: this.state.selectedFileContent,
+          existing_patch: this.state.patch || ""
+        })
+      });
+
+      const json = await resp.json();
+
+      this.setState({
+        patch: json.patch
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   handleApplyPatch = async (first) => {
-    console.log("handleApplyPatch(): ", first);
+    /*
+      type Request struct {
+        Resource string`json:"resource"`
+        Patch    string`json:"patch"`
+    } */
+    const { API_ENDPOINT } = this.props;
+    // try {
+
+    //   const response = await fetch(`${API_ENDPOINT}/kustomize/apply`, {
+    //     method: "POST",
+    //     headers: {
+    //       "Accept": "application/json",
+    //       "Content-Type": "application/json"
+    //     },
+    //     body: JSON.stringify(payload)
+    //   });
+    //   const { modified } = await response.json();
+    //   dispatch(receiveModified(modified, payload.patch));
+    // } catch (error) {
+    //   throw new Error("We weren't able to apply your patch, please verify your patch and try again.");
+    // }
+    // console.log("handleApplyPatch(): ", first);
   }
 
   handleAddResourceClick = async () => {
