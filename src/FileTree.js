@@ -446,7 +446,7 @@ export default class FileTree extends React.Component {
         onDragEnter={this.onDragEnter}
         onDragLeave={this.onDragLeave}
       >
-        <div className="overlay-list-title">Base</div>
+        { isRoot && <div className="overlay-list-title">Base</div>}
         {files && files.map((file, i) => {
           const fileErrorType = this.getFileErrorType(file);
           return (
@@ -460,6 +460,7 @@ export default class FileTree extends React.Component {
               >
                 <input
                   type="checkbox"
+                  data-is-folder
                   checked={this.state.selected.hasOwnProperty(file.path) ? this.state.selected[file.path] : this.arePathsSame(selectedFilePath, file.path)}
                   onChange={e => this.handleCheckboxChange(file.path, e.target.checked)}
                   name={`sub-dir-${file.name}-${file.children.length}-${file.path}-${i}`}

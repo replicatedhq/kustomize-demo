@@ -1,0 +1,355 @@
+/* Icon classes */
+.icon {
+  background-image: url("./vendorweb_spritesheet.svg");
+  background-repeat: no-repeat;
+  background-size: initial;
+  display: inline-block;
+  cursor: default;
+  position: relative;
+}
+.icon.clickable {
+  cursor: pointer;
+}
+.icon.u-entitlementsPopoverIcon {
+  background-position: -72px -57px;
+  width: 18px;
+  height: 22px;
+}
+.icon.u-cameraButtonIcon {
+  background-position: -349px -81px;
+  width: 14px;
+  height: 11px;
+}
+.icon.u-fileUploadButtonIcon {
+  background-position: -349px -65px;
+  width: 12px;
+  height: 14px;
+  vertical-align: -2px;
+}
+.icon.u-editIcon {
+  background-position: -365px -65px;
+  width: 14px;
+  height: 14px;
+}
+.icon.u-TarFileIcon {
+  background-position: -231px -177px;
+  width: 48px;
+  height: 57px;
+}
+.icon.u-analyzingBundleIcon {
+  background-position: 0 -500px;
+  width: 48px;
+  height: 57px;
+}
+.icon.u-analyzingBundleMagnifyingGlassIcon {
+  background-position: 0 -559px;
+  width: 28px;
+  height: 28px;
+}
+.icon.u-errorConsoleIcon {
+  background-position: -55px -370px;
+  width: 18px;
+  height: 18px;
+}
+.icon.u-warnConsoleIcon {
+  background-position: -55px -88px;
+  width: 18px;
+  height: 18px;
+}
+.icon.u-infoConsoleIcon {
+  background-position: -55px -407px;
+  width: 18px;
+  height: 18px;
+}
+.icon.u-closeIcon {
+  background-position: -55px 0;
+  width: 14px;
+  height: 14px;
+}
+.icon.u-closeIcon:hover {
+  background-position: -55px -16px;
+}
+.icon.u-showConsoleIcon {
+  background-position: -231px -109px;
+  width: 33px;
+  height: 33px;
+}
+.icon.u-showConsoleIcon:hover {
+  background-position: -231px -144px;
+}
+.icon.u-showConsoleIconError {
+  background-position: -268px -106px;
+  width: 36px;
+  height: 33px;
+  position: relative;
+  left: 3px;
+}
+.icon.u-showConsoleIconError:hover {
+  background-position: -268px -141px;
+}
+.icon.u-registryIcon {
+  background-position: -222px -413px;
+  width: 79px;
+  height: 95px;
+}
+.icon.u-backArrowBlue {
+  background-position: -54px -31px;
+  width: 8px;
+  height: 13px;
+}
+.icon.u-linkIcon {
+  background-position: 0 -837px;
+  width: 16px;
+  height: 16px;
+}
+.icon.u-linkIcon:hover {
+  background-position: 0 -855px;
+}
+.icon.u-linkIcon--blue {
+  background-position: -55px -506px;
+  width: 16px;
+  height: 16px;
+}
+.icon.u-linkIcon--blue:hover {
+  background-position: -55px -524px;
+}
+
+.icon.u-fullscreenOpenIcon {
+  background-position: -246px -244px;
+  width: 12px;
+  height: 12px;
+}
+.icon.u-fullscreenCloseIcon {
+  background-position: -231px -243px;
+  width: 12px;
+  height: 12px;
+}
+.icon.u-fullscreenOpenIcon:hover {
+  background-position: -246px -258px;
+}
+.icon.u-fullscreenCloseIcon:hover {
+  background-position: -231px -257px;
+}
+
+// analysis icons
+
+// default catch all "info" icon
+.icon[class*=" analysis"] {
+  background-position: -55px -980px;
+  width: 16px;
+  height: 16px;
+}
+.icon.analysis-docker_container {
+  background-position: -308px -162px;
+  width: 15px;
+  height: 16px;
+}
+.icon.analysis-docker_whale {
+  background-position: -308px -198px;
+  width: 22px;
+  height: 16px;
+}
+.icon.analysis-no_docker {
+  background-position: -308px -234px;
+  width: 22px;
+  height: 16px;
+}
+.icon.analysis-os_ubuntu {
+  background-position: -308px -180px;
+  width: 16px;
+  height: 16px;
+}
+.icon.analysis-os_alpine {
+  background-position: -308px -128px;
+  width: 18px;
+  height: 16px;
+}
+.icon.analysis-os_centos {
+  background-position: -335px -110px;
+  width: 16px;
+  height: 16px;
+}
+.icon.analysis-os_rhel {
+  background-position: -335px -128px;
+  width: 16px;
+  height: 16px;
+}
+.icon.analysis-os_memory {
+  background-position: -335px -201px;
+  width: 24px;
+  height: 16px;
+}
+.icon.analysis-os_disk_space {
+  background-position: -29px -979px;
+  width: 13px;
+  height: 16px;
+}
+.icon.analysis-os_uptime {
+  background-position: -335px -218px;
+  width: 15px;
+  height: 16px;
+}
+.icon.analysis-os_cpu {
+  background-position: -335px -163px;
+  width: 16px;
+  height: 16px;
+}
+.icon.analysis-os_loadavg {
+  background-position: -360px -148px;
+  width: 21px;
+  height: 16px;
+}
+.icon.analysis-os_debian {
+  background-position: -335px 145px;
+  width: 13px;
+  height: 16px;
+}
+.icon.analysis-replicated_version {
+  background-position: -308px -216px;
+  width: 14px;
+  height: 16px;
+}
+.icon.analysis-gray_checkmark {
+  background-position: -359px -186px;
+  width: 17px;
+  height: 17px;
+}
+.icon.analysis-disk {
+  background-position: -359px -208px;
+  width: 12px;
+  height: 16px;
+}
+.icon.analysis-disk_full {
+  background-position: -327px -208px;
+  width: 14px;
+  height: 17px;
+}
+.icon.analysis-logs {
+  background-position: -335px -237px;
+  width: 14px;
+  height: 16px;
+}
+.icon.analysis-no_logs {
+  background-position: -335px -255px;
+  width: 14px;
+  height: 16px;
+}
+.icon[class*=" analysis-datacenter"]  {
+  background-position: -55px -943px;
+  width: 12px;
+  height: 16px;
+}
+.icon.analysis-datacenter_aws {
+  background-position: -308px -145px;
+  width: 27px;
+  height: 16px;
+}
+.icon.analysis-datacenter_gce {
+  background-position: -308px -110px;
+  width: 15px;
+  height: 16px;
+}
+.icon.analysis-datacenter_azure {
+  background-position: -55px -907px;
+  width: 21px;
+  height: 16px;
+}
+.icon.analysis-datacenter_unknown {
+  background-position: -359px -169px;
+  width: 16px;
+  height: 16px;
+}
+.icon.u-warningIcon {
+  background-position: -55px -88px;
+  width: 25px;
+  height: 17px;
+}
+.icon.u-trashIcon {
+  background-position: 0px -1445px;
+  width: 16px;
+  height: 17px;
+}
+.icon.u-trashIcon:hover {
+  background-position: 0 -91px;
+  width: 16px;
+  height: 17px;
+}
+.icon.u-whiteTrashIcon {
+  background-position: -18px -72px;
+  width: 14px;
+  height: 15px;
+}
+.icon.u-whiteTrashIcon:hover {
+  background-position: -18px -89px;
+}
+.icon.u-fileIcon {
+  background-position: -83px -703px;
+  width: 15px;
+  height: 18px;
+}
+.icon.u-fileIcon:hover {
+  background-position: -83px -723px;
+}
+.icon.u-folderIcon {
+  background-position: -83px -743px;
+  width: 23px;
+  height: 18px;
+}
+.icon.u-folderIcon:hover {
+  background-position: -83px -763px;
+}
+.icon.u-previewIcon {
+  background-position: 0 -364px;
+  width: 20px;
+  height: 12px;
+}
+.icon.u-previewIcon:hover {
+  background-position: 0 -378px;
+}
+
+.icon.emptyReleases {
+  background-position: 0 -414px;
+  width: 150px;
+  height: 138px;
+}
+
+.icon.u-dockerSpecsIcon {
+  background-position: -178px -298px;
+  width: 40px;
+  height: 28px;
+}
+.icon.u-kubernetesSpecsIcon {
+  background-position: -179px -332px;
+  width: 30px;
+  height: 28px;
+}
+.icon.u-osSpecsIcon {
+  background-position: -179px -366px;
+  width: 34px;
+  height: 28px;
+}
+.icon.u-addFileIcon {
+  background-position: -226px -298px;
+  width: 24px;
+  height: 28px;
+}
+.icon.u-replicatedSpecsIcon {
+  background-position: -226px -330px;
+  width: 24px;
+  height: 28px;
+}
+.icon.u-commandInstallIcon {
+  background-position: -221px -375px;
+  width: 36px;
+  height: 21px;
+}
+.icon.u-warningYellowIcon-small {
+  background-position: -86px -801px;
+  width: 14px;
+  height: 14px;
+}
+.icon.u-errorCircleIcon-small {
+  background-position: -85px -783px;
+  width: 15px;
+  height: 15px;
+}
