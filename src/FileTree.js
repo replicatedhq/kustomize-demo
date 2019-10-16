@@ -421,6 +421,9 @@ export default class FileTree extends React.Component {
     this.stopEventPropagation(e);
     e.target.removeAttribute("style");
     this.moveToDir(e, dir);
+    if (this.props.onDrop) {
+      this.props.onDrop();
+    }
   }
 
   getFileErrorType = file => {

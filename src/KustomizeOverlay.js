@@ -291,6 +291,11 @@ export default class BespokeKustomizeOverlay extends Component {
 
   }
 
+  onDrop = () => {
+    // TODO: Create a new kustomization.yaml
+
+  }
+
   handleAddResourceClick = async () => {
     // Ref input won't focus until state has been set
     this.setState({ addingNewResource: true }, () => {
@@ -310,6 +315,8 @@ export default class BespokeKustomizeOverlay extends Component {
 
   applyPatchAndOpen = async () => {
     await this.handleApplyPatch();
+    await this.savePatch();
+
 
     this.setState({
       showDiff: true
@@ -376,30 +383,27 @@ export default class BespokeKustomizeOverlay extends Component {
     });
   }
 
-  savePatch = () => {
+  savePatch = async () => {
+    await this.handleApplyPatch();
     const {
       selectedFile,
       savedOverlays,
       patch
     } = this.state;
     const file = this.getFile(selectedFile);
-    let existingOverlay = savedOverlays.find(o => selectedFile === o.path);
+    let existingOverlayIdx = savedOverlays.findIndex(o => selectedFile === o.path);
     let newOverlays = [ ...savedOverlays ];
-    if (!existingOverlay) {
-      newOverlays.push({
-        path: selectedFile,
-        name: file.name,
-        content: file.content,
-        patch,
-      });
+    const overlayToAdd = {
+      path: selectedFile,
+      name: file.name,
+      content: file.content,
+      patch
+    };
+
+    if (existingOverlayIdx === -1) {
+      newOverlays.push(overlayToAdd)
     } else {
-      newOverlays = newOverlays.filter( o => file.path !== o.path);
-      newOverlays.push({
-        path: selectedFile,
-        name: file.name,
-        content: file.content,
-        patch,
-      })
+      newOverlays.splice(existingOverlayIdx, 1, overlayToAdd);
     }
 
     this.setState({
@@ -434,6 +438,7 @@ export default class BespokeKustomizeOverlay extends Component {
                       savedOverlays={this.state.savedOverlays}
                       handleFileSelect={(path) => this.setSelectedFile(path)}
                       onOverlayDelete={this.onOverlayDelete}
+                      onDrop={this.onDrop}
                       handleDeleteOverlay={this.toggleModal}
                       handleClickExcludedBase={this.toggleModalForExcludedBase}
                       selectedFile={this.state.selectedFile}
@@ -444,7 +449,6 @@ export default class BespokeKustomizeOverlay extends Component {
               </div>
             </div>
             <div className="flex-column flex1">
-
               <div className="flex flex1">
                 <div className="flex-column flex1">
                   <div className="u-paddingLeft--20 u-paddingRight--20 u-paddingTop--20">
@@ -548,9 +552,9 @@ export default class BespokeKustomizeOverlay extends Component {
                 <div className="flex1 flex alignItems--center justifyContent--flexEnd">
                   {this.state.selectedFileContent && (
                     <div className="flex">
-                      <button type="button" onClick={this.applyPatchAndOpen} className="btn primary u-marginRight--10">Apply Patch</button>
+                      <button type="button" onClick={this.savePatch} className="btn primary u-marginRight--10">Save Patch</button>
                       {patch !== "" && (
-                        <button type="button" onClick={this.savePatch} className="btn primary">Save Patch</button>
+                        <button type="button" onClick={this.applyPatchAndOpen} className="btn primary">Save &amp; Diff</button>
                       )}
                     </div>
                   )}
