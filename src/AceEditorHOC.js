@@ -74,8 +74,6 @@ export class AceEditorHOC extends React.Component {
       await handleGeneratePatch(path);
       await handleApplyPatch();
 
-
-      // await handleApplyPatch().catch();
     }
   }
 

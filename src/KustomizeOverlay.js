@@ -237,6 +237,17 @@ export default class BespokeKustomizeOverlay extends Component {
       const json = await resp.json();
       this.setState({
         patch: json.patch
+      }, () => {
+        const position =
+          this.patchAceEditor &&
+          this.patchAceEditor.editor &&
+          this.patchAceEditor.editor.find("TO_BE_MODIFIED");
+
+        if (position) {
+          this.patchAceEditor.editor.focus();
+          this.patchAceEditor.editor.gotoLine(position.start.row + 1, position.start.column);
+          this.patchAceEditor.editor.find("TO_BE_MODIFIED"); // Have to find text again to auto focus text
+        }
       });
     } catch (error) {
       console.error(error);
