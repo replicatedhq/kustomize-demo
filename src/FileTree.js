@@ -517,7 +517,7 @@ export default class FileTree extends React.Component {
                 return (
                   <div
                     key={overlay.path}
-                    className={classNames("overlay-item u-color", {
+                    className={classNames("overlay-item u-postion--relative", {
                       selected: overlay.path === this.props.selectedFile
                     })}
                     onClick={() => {
@@ -525,6 +525,15 @@ export default class FileTree extends React.Component {
                     }}
                   >
                     {overlay.name}
+                    {overlay.name !== "kustomization.yaml" && (
+                      <span
+                        className="u-position--absolute icon clickable icon-x"
+                        onClick={() => this.props.onOverlayDelete(overlay.path)}
+                      >
+                        x
+                      </span>
+                    )}
+
                   </div>
                 )
               })}

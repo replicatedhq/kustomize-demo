@@ -148,31 +148,55 @@ export default class BespokeKustomizeOverlay extends Component {
     });
   }
 
-  deleteOverlay = async (path, overlayType) => {
-    const { fileTree, selectedFile } = this.state;
-    const isResource = overlayType === RESOURCE_OVERLAY;
-    const isBase = overlayType === BASE_OVERLAY;
-    const overlays = find(fileTree, { name: "overlays" });
-    const overlayExists = overlays && findIndex(overlays.children, { path }) > -1;
+  // deleteOverlay = async (path, overlayType) => {
+  //   const { fileTree, selectedFile } = this.state;
+  //   const isResource = overlayType === RESOURCE_OVERLAY;
+  //   const isBase = overlayType === BASE_OVERLAY;
+  //   const overlays = find(fileTree, { name: "overlays" });
+  //   const overlayExists = overlays && findIndex(overlays.children, { path }) > -1;
 
-    // TODO: Handle deletion of generated overlays here
-    if (isResource) {
-      await this.props.deleteOverlay(path, "resource");
-      return;
+  //   // TODO: Handle deletion of generated overlays here
+  //   if (isResource) {
+  //     await this.props.deleteOverlay(path, "resource");
+  //     return;
+  //   }
+
+  //   if (isBase) {
+  //     if (selectedFile === path) {
+  //       this.setState({ selectedFile: "" });
+  //     }
+  //     await this.props.deleteOverlay(path, "base");
+  //     return;
+  //   }
+
+  //   if (overlayExists) {
+  //     await this.props.deleteOverlay(path, "patch");
+  //     return;
+  //   }
+  // }
+
+  deleteOverlay = async path => {
+    // TODO: Stub - Remove me.
+  }
+
+  onOverlayDelete = path => {
+    const { files, savedOverlays } = this.state;
+    let newOverlays = savedOverlays.filter(o => o.path !== path);
+    let filesCopy = [...files];
+    // only remaining overlay is kustomization.yaml. Remove it.
+    if (newOverlays.length === 1) {
+      newOverlays = [];
+      filesCopy = files.filter(f => f.path !== "kustomization.yaml");
     }
-
-    if (isBase) {
-      if (selectedFile === path) {
-        this.setState({ selectedFile: "" });
+    this.setState({
+      savedOverlays: newOverlays,
+      files: filesCopy
+    }, async () => {
+      if (newOverlays.length) {
+        await this.generateKustomization();
       }
-      await this.props.deleteOverlay(path, "base");
-      return;
-    }
-
-    if (overlayExists) {
-      await this.props.deleteOverlay(path, "patch");
-      return;
-    }
+      await this.resetState();
+    });
   }
 
 
@@ -318,8 +342,8 @@ export default class BespokeKustomizeOverlay extends Component {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        "resources": savedOverlays.map(o => o.path),
-        "patches": savedOverlays.map(o => o.path)
+        "resources": savedOverlays.map(o => o.path).filter(o => o !== "kustomization.yaml"),
+        "patches": savedOverlays.map(o => o.path).filter(o => o !== "kustomization.yaml")
       })
     });
 
@@ -332,6 +356,11 @@ export default class BespokeKustomizeOverlay extends Component {
         path: "kustomization.yaml",
         content: json.kustomization,
         children: []
+      };
+    } else {
+      kustomizationOverlay = {
+        ...kustomizationOverlay,
+        content: json.kustomization
       };
     }
 
@@ -406,6 +435,7 @@ export default class BespokeKustomizeOverlay extends Component {
                       isRoot={true}
                       savedOverlays={this.state.savedOverlays}
                       handleFileSelect={(path) => this.setSelectedFile(path)}
+                      onOverlayDelete={this.onOverlayDelete}
                       handleDeleteOverlay={this.toggleModal}
                       handleClickExcludedBase={this.toggleModalForExcludedBase}
                       selectedFile={this.state.selectedFile}

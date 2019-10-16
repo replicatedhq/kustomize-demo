@@ -237,5 +237,13 @@
     font-weight: 700;
   }
 
+  .icon-x {
+    position: absolute;
+    right: 30px;
+    font-weight: 400;
+    &:hover {
+      font-weight: 700;
+    }
+  }
 
 }
