@@ -3,8 +3,6 @@ import AceEditor from "react-ace";
 
 import DiffEditor from "./DiffEditor";
 import { AceEditorHOC } from "./AceEditorHOC";
-import find from "lodash/find";
-import findIndex from "lodash/findIndex";
 import FileTree from "./FileTree";
 import KustomizeModal from "./KustomizeModal";
 
