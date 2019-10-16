@@ -185,6 +185,9 @@ export default class BespokeKustomizeOverlay extends Component {
 	  }
     */
     const { API_ENDPOINT } = this.props;
+    if (this.state.selectedFile === "kustomization.yaml") {
+      return;
+    }
     try {
       const resp = await fetch(`${API_ENDPOINT}/kustomize/patch`, {
         method: "POST",
@@ -223,7 +226,9 @@ export default class BespokeKustomizeOverlay extends Component {
         Patch    string`json:"patch"`
     } */
     const { API_ENDPOINT } = this.props;
-
+    if (this.state.selectedFile === "kustomization.yaml") {
+      return;
+    }
     try {
       const response = await fetch(`${API_ENDPOINT}/kustomize/apply`, {
         method: "POST",
@@ -287,6 +292,9 @@ export default class BespokeKustomizeOverlay extends Component {
     this.setState({
       showDiff: true
     }, () => {
+
+      this.patchAceEditor &&
+      this.patchAceEditor.editor &&
       this.patchAceEditor.editor.resize();
     });
   }
@@ -301,9 +309,9 @@ export default class BespokeKustomizeOverlay extends Component {
   }
   generateKustomization = async () => {
     const { API_ENDPOINT } = this.props;
-    const { savedOverlays } = this.state;
+    const { savedOverlays, files } = this.state;
 
-    const resp = await fetch(`${API_ENDPOINT}/kustomize/kustomization`, {
+    const resp = await fetch(`${API_ENDPOINT}/kustomize/generate`, {
       method: "POST",
       headers: {
         "Accept": "application/json",
@@ -316,22 +324,27 @@ export default class BespokeKustomizeOverlay extends Component {
     });
 
     const json = await resp.json();
-    debugger;
-    let kustomizationYaml = savedOverlays.find(o => o.path === "kustomization.yaml");
-    if (!kustomizationYaml) {
-      kustomizationYaml = {
+
+    let kustomizationOverlay = savedOverlays.find(o => o.path === "kustomization.yaml");
+    if (!kustomizationOverlay) {
+      kustomizationOverlay = {
         name: "kustomization.yaml",
         path: "kustomization.yaml",
-        content: "INSERT YAML HERE"
+        content: json.kustomization,
+        children: []
       };
     }
 
-    const newOverlays = [
-      ...savedOverlays,
-      kustomizationYaml
-    ];
+    let newOverlays = [...savedOverlays];
+    newOverlays = newOverlays.filter(o => o.path !== "kustomization.yaml");
+    newOverlays.push(kustomizationOverlay);
+
+    let newFiles = [...files];
+    newFiles = newFiles.filter(f => f.path !== "kustomization.yaml");
+    newFiles.push(kustomizationOverlay);
 
     this.setState({
+      files: newFiles,
       savedOverlays: newOverlays
     });
   }
@@ -343,16 +356,25 @@ export default class BespokeKustomizeOverlay extends Component {
       patch
     } = this.state;
     const file = this.getFile(selectedFile);
-    const newOverlays = [
-      ...savedOverlays,
-      {
+    let existingOverlay = savedOverlays.find(o => selectedFile === o.path);
+    let newOverlays = [ ...savedOverlays ];
+    if (!existingOverlay) {
+      newOverlays.push({
         path: selectedFile,
         name: file.name,
         content: file.content,
         patch,
-      }
-    ];
-    console.log("saving Patch and setting state");
+      });
+    } else {
+      newOverlays = newOverlays.filter( o => file.path !== o.path);
+      newOverlays.push({
+        path: selectedFile,
+        name: file.name,
+        content: file.content,
+        patch,
+      })
+    }
+
     this.setState({
       savedOverlays: newOverlays
     }, this.generateKustomization);
@@ -369,7 +391,7 @@ export default class BespokeKustomizeOverlay extends Component {
       modalAction
     } = this.state;
 
-    const showOverlay = patch.length;
+    const showOverlay = patch && patch.length;
     return (
       <div className="flex flex1">
         <div className="u-minHeight--full u-minWidth--full flex-column flex1 u-position--relative">

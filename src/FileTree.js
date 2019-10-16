@@ -446,6 +446,7 @@ export default class FileTree extends React.Component {
         onDragEnter={this.onDragEnter}
         onDragLeave={this.onDragLeave}
       >
+        <div className="overlay-list-title">Base</div>
         {files && files.map((file, i) => {
           const fileErrorType = this.getFileErrorType(file);
           return (
