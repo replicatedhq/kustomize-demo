@@ -75,7 +75,7 @@ export default class BespokeKustomizeOverlay extends Component {
     return overlay;
   }
 
-  setSelectedFile = async (path) => {
+  setSelectedFile = async (path, stateFile) => {
     const { lastSavedPatch, patch, selectedFile } = this.state;
     /* eslint-disable-next-line no-restricted-globals */
     let canChangeFile = !lastSavedPatch || patch === lastSavedPatch || confirm("You have unsaved changes in the patch. If you proceed, you will lose any of the changes you've made.");
@@ -86,6 +86,14 @@ export default class BespokeKustomizeOverlay extends Component {
       await this.resetState();
     }
     if (canChangeFile) {
+      if (stateFile && stateFile.path === "kustomization.yaml") {
+        this.setState({
+          selectedFile: stateFile.path,
+          selectedFileContent: stateFile.content,
+          patch: ""
+        });
+        return;
+      }
       this.setState({ selectedFile: path, lastSavedPatch: null }, () => {
         const file = this.getFile(path);
         if (!file) { return; }
@@ -182,7 +190,7 @@ export default class BespokeKustomizeOverlay extends Component {
     let newOverlays = savedOverlays.filter(o => o.path !== path);
     let filesCopy = [...files];
     // only remaining overlay is kustomization.yaml. Remove it.
-    if (newOverlays.length === 1) {
+    if (newOverlays.length === 1 && newOverlays[0].path === "kustomization.yaml") {
       newOverlays = [];
       filesCopy = files.filter(f => f.path !== "kustomization.yaml");
     }
@@ -293,6 +301,7 @@ export default class BespokeKustomizeOverlay extends Component {
 
   onDrop = () => {
     // TODO: Create a new kustomization.yaml
+    setTimeout(this.generateKustomization, 100);
 
   }
 
@@ -336,51 +345,81 @@ export default class BespokeKustomizeOverlay extends Component {
       window.removeEventListener("click", this.handleClickOutsideResourceInput);
     }
   }
+
+  createFlatFileTree = arr => {
+    return arr.map(file => {
+      if (file.children && file.children.length) {
+        return this.createFlatFileTree(file.children);
+      }
+      return file.path;
+    }).reduce((acc, val) => acc.concat(val), []);
+  }
+
   generateKustomization = async () => {
     const { API_ENDPOINT } = this.props;
     const { savedOverlays, files } = this.state;
-
-    const resp = await fetch(`${API_ENDPOINT}/kustomize/generate`, {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        "resources": savedOverlays.map(o => o.path).filter(o => o !== "kustomization.yaml"),
-        "patches": savedOverlays.map(o => o.path).filter(o => o !== "kustomization.yaml")
-      })
-    });
-
-    const json = await resp.json();
-
-    let kustomizationOverlay = savedOverlays.find(o => o.path === "kustomization.yaml");
-    if (!kustomizationOverlay) {
-      kustomizationOverlay = {
+    if (files.length) {
+      const resources = this.createFlatFileTree(
+        files.filter(f => f.path !== "kustomization.yaml")
+      );
+      const resp = await fetch(`${API_ENDPOINT}/kustomize/generate-base`, {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          resources
+        })
+      });
+      const json = await resp.json();
+      let newFiles = [...files];
+      newFiles = newFiles.filter(f => f.path !== "kustomization.yaml");
+      newFiles.push({
         name: "kustomization.yaml",
         path: "kustomization.yaml",
         content: json.kustomization,
+        isBase: true,
         children: []
-      };
-    } else {
-      kustomizationOverlay = {
-        ...kustomizationOverlay,
-        content: json.kustomization
-      };
+      });
+
+      this.setState({
+        files: newFiles
+      });
     }
 
-    let newOverlays = [...savedOverlays];
-    newOverlays = newOverlays.filter(o => o.path !== "kustomization.yaml");
-    newOverlays.push(kustomizationOverlay);
-
-    let newFiles = [...files];
-    newFiles = newFiles.filter(f => f.path !== "kustomization.yaml");
-    newFiles.push(kustomizationOverlay);
-
-    this.setState({
-      files: newFiles,
-      savedOverlays: newOverlays
-    });
+    if (savedOverlays.length && savedOverlays[0].path !== "kustomization.yaml") {
+      const patches = this.createFlatFileTree(
+        savedOverlays.filter(f => f.path !== "kustomization.yaml")
+      );
+      const resp = await fetch(`${API_ENDPOINT}/kustomize/generate-overlay`, {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          patches
+        })
+      });
+      const json = await resp.json();
+      let newOverlays = [...savedOverlays];
+      newOverlays = newOverlays.filter(o => o.path !== "kustomization.yaml");
+      newOverlays.push({
+        name: "kustomization.yaml",
+        path: "kustomization.yaml",
+        content: json.kustomization,
+        isBase: false,
+        children: []
+      });
+      this.setState({
+        savedOverlays: newOverlays
+      });
+    } else {
+      this.setState({
+        savedOverlays: []
+      });
+    }
   }
 
   savePatch = async () => {
@@ -391,6 +430,9 @@ export default class BespokeKustomizeOverlay extends Component {
       patch
     } = this.state;
     const file = this.getFile(selectedFile);
+    if (!file) {
+      return;
+    }
     let existingOverlayIdx = savedOverlays.findIndex(o => selectedFile === o.path);
     let newOverlays = [ ...savedOverlays ];
     const overlayToAdd = {
@@ -436,12 +478,13 @@ export default class BespokeKustomizeOverlay extends Component {
                       allowModification={true}
                       isRoot={true}
                       savedOverlays={this.state.savedOverlays}
-                      handleFileSelect={(path) => this.setSelectedFile(path)}
+                      handleFileSelect={(path, file) => this.setSelectedFile(path, file)}
                       onOverlayDelete={this.onOverlayDelete}
                       onDrop={this.onDrop}
                       handleDeleteOverlay={this.toggleModal}
                       handleClickExcludedBase={this.toggleModalForExcludedBase}
                       selectedFile={this.state.selectedFile}
+                      selectedFileContent={this.state.selectedFileContent}
                       restrictToYaml={true}
                     />
                   </div>

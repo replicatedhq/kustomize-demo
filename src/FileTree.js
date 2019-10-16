@@ -56,9 +56,9 @@ export default class FileTree extends React.Component {
     return this.props.rootFiles || this.props.files;
   }
 
-  handleFileSelect = file => {
+  handleFileSelect = (file) => {
     const onlyPath = typeof this.props.selectedFile === "string";
-    this.props.handleFileSelect(onlyPath ? file.path : file);
+    this.props.handleFileSelect(onlyPath ? file.path : file, file);
   }
 
   handleFilesUpdate = (files) => {
@@ -452,6 +452,12 @@ export default class FileTree extends React.Component {
         { isRoot && <div className="overlay-list-title">Base</div>}
         {files && files.map((file, i) => {
           const fileErrorType = this.getFileErrorType(file);
+
+          let selected = selectedFilePath === file.path;
+          if (file.path === "kustomization.yaml") {
+            selected = !this.props.selectedFileContent.includes("bases:") && this.props.selectedFileContent.includes("kind: Kustomization");
+          }
+
           return (
             file.children && file.children.length ?
               <li
@@ -489,7 +495,7 @@ export default class FileTree extends React.Component {
               :
               <li
                 key={file.path}
-                className={`u-position--relative is-file ${selectedFilePath === file.path ? "is-selected" : ""}`}
+                className={`u-position--relative is-file ${selected ? "is-selected" : ""}`}
                 draggable={allowModification}
                 onClick={() => this.handleFileSelect(file)}
                 onDragStart={(e) => this.onDragStart(e, file)}
@@ -513,19 +519,25 @@ export default class FileTree extends React.Component {
           );
         })
         }
+
         {isRoot && this.props.savedOverlays && this.props.savedOverlays.length > 0 &&
           (
             <div className="overlay-list-wrapper">
               <div className="overlay-list-title">Overlay</div>
               {this.props.savedOverlays.map(overlay => {
+                let selected = overlay.path === this.props.selectedFile;
+
+                if (selected && this.props.selectedFile === "kustomization.yaml") {
+                  selected = this.props.selectedFileContent.includes("kind: Kustomization") && this.props.selectedFileContent.includes("patchesStrategicMerge:");
+                }
                 return (
                   <div
                     key={overlay.path}
                     className={classNames("overlay-item u-postion--relative", {
-                      selected: overlay.path === this.props.selectedFile
+                      selected
                     })}
                     onClick={() => {
-                      this.props.handleFileSelect(overlay.path);
+                      this.props.handleFileSelect(overlay.path, overlay);
                     }}
                   >
                     {overlay.name}
