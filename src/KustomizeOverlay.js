@@ -192,7 +192,7 @@ export default class BespokeKustomizeOverlay extends Component {
     // only remaining overlay is kustomization.yaml. Remove it.
     if (newOverlays.length === 1 && newOverlays[0].path === "kustomization.yaml") {
       newOverlays = [];
-      filesCopy = files.filter(f => f.path !== "kustomization.yaml");
+      filesCopy = [...files];
     }
     this.setState({
       savedOverlays: newOverlays,
