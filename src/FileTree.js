@@ -546,7 +546,7 @@ export default class FileTree extends React.Component {
                         className="u-position--absolute icon clickable icon-x"
                         onClick={() => this.props.onOverlayDelete(overlay.path)}
                       >
-                        x
+
                       </span>
                     )}
 

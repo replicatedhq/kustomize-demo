@@ -241,8 +241,12 @@
     position: absolute;
     right: 30px;
     font-weight: 400;
+    background-position: 0px -91px;
+    background-image: url("./vendor_spritesheet.svg");
+    width: 16px;
+    height: 17px;
     &:hover {
-      font-weight: 700;
+      background-position: 0px -72px;
     }
   }
 }
