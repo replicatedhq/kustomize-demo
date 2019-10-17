@@ -454,7 +454,7 @@ export default class FileTree extends React.Component {
           const fileErrorType = this.getFileErrorType(file);
 
           let selected = selectedFilePath === file.path;
-          if (file.path === "kustomization.yaml") {
+          if (file.path === "kustomization.yaml" && this.props.selectedFileContent) {
             selected = !this.props.selectedFileContent.includes("bases:") && this.props.selectedFileContent.includes("kind: Kustomization");
           }
 
