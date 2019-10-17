@@ -193,6 +193,9 @@ export default class BespokeKustomizeOverlay extends Component {
   download = async () => {
     const { API_ENDPOINT } = this.props;
     const { files, savedOverlays } = this.state;
+    if (files.length === 0) {
+      return;
+    }
     try {
       const fileBundle = this.createFileBundle(files, "base");
       const overlayBundle = this.createFileBundle(savedOverlays, "overlay");
@@ -350,6 +353,10 @@ export default class BespokeKustomizeOverlay extends Component {
   }
 
   applyPatchAndOpen = async () => {
+    const { patch } = this.state;
+    if (!patch) {
+      return;
+    }
     await this.handleApplyPatch();
     await this.savePatch();
 
@@ -451,12 +458,16 @@ export default class BespokeKustomizeOverlay extends Component {
   }
 
   savePatch = async () => {
-    await this.handleApplyPatch();
     const {
       selectedFile,
       savedOverlays,
       patch
     } = this.state;
+    if (!patch) {
+      return;
+    }
+
+    await this.handleApplyPatch();
     const file = this.getFile(selectedFile);
     if (!file) {
       return;
@@ -621,17 +632,11 @@ export default class BespokeKustomizeOverlay extends Component {
                   </div>
                 </div>
                 <div className="flex1 flex alignItems--center justifyContent--flexEnd">
-                  {this.state.selectedFileContent && (
-                    <div className="flex">
-                      <button type="button" onClick={this.savePatch} className="btn primary u-marginRight--10">Save Patch</button>
-                      {patch !== "" && (
-                        <button type="button" onClick={this.applyPatchAndOpen} className="btn primary">Save &amp; Diff</button>
-                      )}
-                      {this.state.files.length > 1 && (
-                        <button type="button" onClick={this.download} className="btn primary u-marginLeft--10">Download</button>
-                      )}
-                    </div>
-                  )}
+                  <div className="flex">
+                    <button type="button" onClick={this.download} className="btn secondary u-marginRight--10">Download</button>
+                    <button type="button" onClick={this.savePatch} className="btn primary u-marginRight--10">Save Patch</button>
+                    <button type="button" onClick={this.applyPatchAndOpen} className="btn primary">Save &amp; Diff</button>
+                  </div>
                 </div>
               </div>
             </div>
