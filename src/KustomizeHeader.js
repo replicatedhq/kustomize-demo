@@ -50,6 +50,11 @@ export default function KustomizeHeader(props) {
                     Community
                   </a>
                 </li>
+                <li>
+                  <a href="https://kustomize.io/tutorial" className="header-link">
+                    Tutorial
+                  </a>
+                </li>
               </ul>
             </li>
           </ul>
