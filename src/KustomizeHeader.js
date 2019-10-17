@@ -3,11 +3,12 @@ import classNames from "classnames";
 import "./KustomizeHeader.scss";
 
 export default function KustomizeHeader(props) {
-  const [ navOpen, setNavOpen ] = useState(false);
+  const [ open, setMenuOpen ] = useState(false);
 
   const toggleMenu = () => {
-    setNavOpen(!navOpen);
+    setMenuOpen(!open);
   }
+
   return (
     <header {...props}>
       <nav>
@@ -15,17 +16,15 @@ export default function KustomizeHeader(props) {
           <span
             id="toggleNav"
             onClick={toggleMenu}
-            className={classNames("u-show--mobileTablet icon u-cursor--pointer", {
-            open: navOpen
-          })}></span>
-          <ul className="flex justifyContent--spaceBetween alignItems--center nav-list u-position--relative">
-            <li>
+            className={classNames("u-show--mobileTablet icon u-cursor--pointer", { open })}></span>
+          <ul className={classNames("flex justifyContent--spaceBetween alignItems--center nav-list u-position--relative")}>
+            <li className="logo-link-wrapper">
               <a className="logo-link" href="https://kustomize.io">
                 <div className="logo"></div>
               </a>
             </li>
             <li>
-              <ul className="header-links">
+              <ul className={classNames("header-links", { open })}>
                 <li>
                   <a href="https://kubectl.docs.kubernetes.io/pages/app_management/introduction.html" className="header-link">
                     kubectl Usage

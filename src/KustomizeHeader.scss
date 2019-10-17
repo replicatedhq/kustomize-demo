@@ -1,9 +1,7 @@
 header.kustomize-header {
-  padding-top: 15px;
-  padding-bottom: 15px;
-  background: #5D8BEE;
-  position: relative;
+  height: 75px;
 }
+
 nav {
   width: 100%;
   top: 0;
@@ -24,9 +22,7 @@ nav > div > ul.flex {
   left: 0;
   z-index: 10;
 }
-nav > div > ul li:first-of-type {
-  padding: 20px;
-}
+
 nav ul li {
   display: block;
 }
@@ -36,6 +32,10 @@ nav ul li a {
   font-size: 14px;
   padding: 10px 0 5px;
   display: block;
+}
+
+.logo-link-wrapper {
+  padding: 20px;
 }
 .logo-link {
   display: inline-block;
@@ -60,6 +60,7 @@ nav ul li a {
   display: none;
 }
 #toggleNav {
+  background-image: url(./style/kustomize_spritesheet.svg);
   position: absolute;
   right: 20px;
   top: 13px;
@@ -69,6 +70,22 @@ nav ul li a {
   height: 14px;
   display: inline-block;
   margin: 20px 0;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.header-links {
+  display: none;
+
+  &.open {
+    display: block;
+    padding-bottom: 10px;
+    li {
+      padding-left: 25px;
+    }
+  }
 }
 #toggleNav.open {
   background-position: -90px -101px;
@@ -209,18 +226,33 @@ nav ul li a {
 
 /* ≥ 768px */
 @media screen and (min-width: 52em) {
+  header.kustomize-header {
+    height: 35px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    background-color: #5D8BEE;
+    position: relative;
+  }
+
   #headerLinks {
     padding-top: 0;
   }
+
+  #toggleNav {
+    display: none;
+  }
+
   #headerLinks li {
     display: inline-block !important;
   }
   nav {
     padding: 36px 0 0px;
   }
-  nav > div > ul li:first-of-type {
-    padding: 0px;
+
+  .logo-link-wrapper {
+    padding: 0;
   }
+
   nav > div > ul.flex  {
     display: flex !important;
     justify-content: space-between;
@@ -234,6 +266,7 @@ nav ul li a {
     padding: 0;
     margin-right: 45px;
   }
+
   .log-in-link {
     position: absolute;
     right: 30px;
