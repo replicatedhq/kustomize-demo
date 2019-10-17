@@ -507,7 +507,7 @@ export default class BespokeKustomizeOverlay extends Component {
                 <div className="flex-column flex1">
                   <div className="u-paddingLeft--20 u-paddingRight--20 u-paddingTop--20">
                     <p className="u-marginBottom--normal u-fontSize--large u-color--tuna u-fontWeight--bold">Base YAML</p>
-                    <p className="u-fontSize--small u-lineHeight--more u-paddingBottom--20 u-fontWeight--medium u-color--doveGray">This file will be applied as a patch to the base manifest. Edit the values that you want patched. The current file you're editing will be automatically saved when you open a new file.</p>
+                    <p className="u-fontSize--small u-lineHeight--more u-paddingBottom--20 u-fontWeight--medium u-color--doveGray">This the original YAML that you uploaded. Click on any attribute to below and this tutorial will prepare the necessary kustomization.yaml and calculate the patch YAML for you to edit with your desired value.</p>
                   </div>
                   {this.state.selectedFileContent
                     ? (
