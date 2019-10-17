@@ -437,7 +437,8 @@ export default class BespokeKustomizeOverlay extends Component {
         path: "kustomization.yaml",
         content: json.kustomization,
         isBase: false,
-        children: []
+        children: [],
+        patch: json.kustomization
       });
       this.setState({
         savedOverlays: newOverlays
