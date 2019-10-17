@@ -154,33 +154,6 @@ export default class BespokeKustomizeOverlay extends Component {
     });
   }
 
-  // deleteOverlay = async (path, overlayType) => {
-  //   const { fileTree, selectedFile } = this.state;
-  //   const isResource = overlayType === RESOURCE_OVERLAY;
-  //   const isBase = overlayType === BASE_OVERLAY;
-  //   const overlays = find(fileTree, { name: "overlays" });
-  //   const overlayExists = overlays && findIndex(overlays.children, { path }) > -1;
-
-  //   // TODO: Handle deletion of generated overlays here
-  //   if (isResource) {
-  //     await this.props.deleteOverlay(path, "resource");
-  //     return;
-  //   }
-
-  //   if (isBase) {
-  //     if (selectedFile === path) {
-  //       this.setState({ selectedFile: "" });
-  //     }
-  //     await this.props.deleteOverlay(path, "base");
-  //     return;
-  //   }
-
-  //   if (overlayExists) {
-  //     await this.props.deleteOverlay(path, "patch");
-  //     return;
-  //   }
-  // }
-
   deleteOverlay = async path => {
     // TODO: Stub - Remove me.
   }
@@ -205,6 +178,52 @@ export default class BespokeKustomizeOverlay extends Component {
     });
   }
 
+  createFileBundle = (files, prefix) => {
+    return files.map( file => {
+      if (file.children && file.children.length) {
+        return this.createFileBundle(file.children, prefix);
+      }
+      return {
+        filename: `${prefix}/${file.path}`,
+        contents: file.content
+      };
+    }).reduce(( acc, val) => acc.concat(val), []);
+  }
+
+  download = async () => {
+    const { API_ENDPOINT } = this.props;
+    const { files, savedOverlays } = this.state;
+    try {
+      const fileBundle = this.createFileBundle(files, "base");
+      const overlayBundle = this.createFileBundle(savedOverlays, "overlay");
+      console.log()
+      const resp = await fetch(`${API_ENDPOINT}/kustomize/bundle`, {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        },
+        body: JSON.stringify({
+          files: fileBundle.concat(overlayBundle)
+        })
+      });
+
+      if (resp.ok) {
+        const blob = await resp.blob();
+        const el = document.createElement("a");
+        el.href = window.URL.createObjectURL(blob, { type: "application/tar+gz" });
+        el.download = "kustomize.tar.gz";
+
+        document.body.append(el);
+        el.click();
+        document.body.removeChild(el);
+      }
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   handleGeneratePatch = async path => {
     /*
@@ -311,9 +330,7 @@ export default class BespokeKustomizeOverlay extends Component {
   }
 
   onDrop = () => {
-    // TODO: Create a new kustomization.yaml
     setTimeout(this.generateKustomization, 100);
-
   }
 
   handleAddResourceClick = async () => {
@@ -609,6 +626,9 @@ export default class BespokeKustomizeOverlay extends Component {
                       <button type="button" onClick={this.savePatch} className="btn primary u-marginRight--10">Save Patch</button>
                       {patch !== "" && (
                         <button type="button" onClick={this.applyPatchAndOpen} className="btn primary">Save &amp; Diff</button>
+                      )}
+                      {this.state.files.length > 1 && (
+                        <button type="button" onClick={this.download} className="btn primary u-marginLeft--10">Download</button>
                       )}
                     </div>
                   )}
