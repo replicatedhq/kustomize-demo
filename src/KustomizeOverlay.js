@@ -185,7 +185,7 @@ export default class BespokeKustomizeOverlay extends Component {
       }
       return {
         filename: `${prefix}/${file.path}`,
-        contents: file.content
+        contents: prefix === "base" ? file.content : file.patch
       };
     }).reduce(( acc, val) => acc.concat(val), []);
   }
@@ -196,7 +196,6 @@ export default class BespokeKustomizeOverlay extends Component {
     try {
       const fileBundle = this.createFileBundle(files, "base");
       const overlayBundle = this.createFileBundle(savedOverlays, "overlay");
-      console.log()
       const resp = await fetch(`${API_ENDPOINT}/kustomize/bundle`, {
         method: "POST",
         headers: {
