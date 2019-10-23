@@ -188,7 +188,15 @@ export default class FileTree extends React.Component {
     if (e.dataTransfer.items && e.dataTransfer.items.length > 0) { // Adding files from disk
       const items = e.dataTransfer.items;
       for (let i = 0; i < items.length; i++) {
+        // NOTE: webkitGetAsEntry() is an experimental tech
+        // and may be deprecated in future browser releases
         const item = items[i].webkitGetAsEntry();
+
+        // webkitGetAsEntry did not detect a file.
+        if (item === null) {
+          continue;
+        }
+
         if (item.name.startsWith(".")) {
           continue;
         }
