@@ -33,6 +33,7 @@ class App extends Component {
             <div className="flex-1-auto flex-column u-overflow--auto">
               <KustomizeOverlay
                 API_ENDPOINT={API_ENDPOINT}
+                bugsnagClient={bugsnagClient}
               />
             </div>
           </div>

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import AceEditor from "react-ace";
+import { toast } from "react-toastify";
 
 import DiffEditor from "./DiffEditor";
 import { AceEditorHOC } from "./AceEditorHOC";
@@ -9,9 +10,12 @@ import KustomizeModal from "./KustomizeModal";
 import "brace/mode/yaml";
 import "brace/theme/chrome";
 
+import "react-toastify/dist/ReactToastify.min.css";
+
 // const PATCH_OVERLAY = "PATCH";
 const BASE_OVERLAY = "BASE";
 const RESOURCE_OVERLAY = "RESOURCE";
+toast.configure();
 
 export default class BespokeKustomizeOverlay extends Component {
   constructor(props) {
@@ -228,6 +232,7 @@ export default class BespokeKustomizeOverlay extends Component {
   }
 
   handleGeneratePatch = async path => {
+    const { bugsnagClient } = this.props;
     /*
     type Request struct {
 		  Original string        `json:"original"`
@@ -271,7 +276,10 @@ export default class BespokeKustomizeOverlay extends Component {
         }
       });
     } catch (error) {
-      console.error(error);
+      toast("We weren't able to generate a patch. Please verify your Kubernetes YAML and try again.");
+      if (bugsnagClient) {
+        bugsnagClient.notify(error);
+      }
     }
   }
 
@@ -282,6 +290,7 @@ export default class BespokeKustomizeOverlay extends Component {
   }
 
   handleApplyPatch = async () => {
+    const { bugsnagClient } = this.props;
     /*
       type Request struct {
         Resource string`json:"resource"`
@@ -323,7 +332,10 @@ export default class BespokeKustomizeOverlay extends Component {
       });
 
     } catch (error) {
-      throw new Error("We weren't able to apply your patch, please verify your patch and try again.");
+      toast("We weren't able to apply your patch, please verify your patch and try again.");
+      if (bugsnagClient) {
+        bugsnagClient.notify(error);
+      }
     }
   }
 
