@@ -31,7 +31,7 @@ export default function KustomizeHeader(props) {
                   </a>
                 </li>
                 <li>
-                  <a href="hhttps://github.com/kubernetes-sigs/kustomize/blob/master/docs" className="header-link">
+                  <a href="https://github.com/kubernetes-sigs/kustomize/blob/master/docs" className="header-link">
                     Core Docs
                   </a>
                 </li>
